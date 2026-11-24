@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f1e7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1b1814" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Ứng dụng tự rèn kỹ năng lãnh đạo – quản trị dựa trên bộ Tứ thư lãnh đạo, học theo phương pháp Simon.">
+  <title>Rèn Tứ Thư Lãnh Đạo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a href="#/" class="brand" aria-label="Về trang Hôm nay">
+      <span class="brand-mark">四</span>
+      <span class="brand-text">Rèn Tứ Thư</span>
+    </a>
+    <a href="#/progress" class="streak" id="streak" aria-label="Xem tiến độ">🔥 0</a>
+  </header>
+
+  <main id="app" tabindex="-1"></main>
+
+  <nav class="tabbar" aria-label="Điều hướng chính">
+    <a href="#/" data-tab="today"><span>☀️</span>Hôm nay</a>
+    <a href="#/books" data-tab="books"><span>📚</span>Bài học</a>
+    <a href="#/review" data-tab="review"><span>🃏</span>Ôn thẻ<b class="badge" id="due-badge" hidden></b></a>
+    <a href="#/scen" data-tab="scen"><span>🎯</span>Tình huống</a>
+    <a href="#/journal" data-tab="journal"><span>📝</span>Nhật ký</a>
+  </nav>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="data/lanh-dao.js"></script>
+  <script src="data/dung-ngon.js"></script>
+  <script src="data/xu-the.js"></script>
+  <script src="data/quan-tri.js"></script>
+  <script src="data/simon.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+# Không đưa sách gốc (có bản quyền) lên kho
+*.pdf
+*.epub
+.DS_Store
