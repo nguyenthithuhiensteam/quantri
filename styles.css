@@ -76,6 +76,14 @@ p { margin: 0 0 .75em; }
   padding: 6px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line);
 }
 
+.acct {
+  display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%;
+  text-decoration: none; background: var(--surface); border: 1px solid var(--line); font-size: 1.05rem;
+}
+.acct.on { border-color: var(--accent); }
+code { font-size: .9em; background: var(--surface-2); padding: 1px 5px; border-radius: 5px; }
+summary { cursor: pointer; }
+
 main { max-width: 720px; margin: 0 auto; padding: 16px; outline: none; }
 
 /* Tab bar */
@@ -173,7 +181,7 @@ main { max-width: 720px; margin: 0 auto; padding: 16px; outline: none; }
   font-family: var(--serif); font-style: italic; font-size: 1.05rem;
 }
 .outline { margin: 0; padding-left: 1.2em; color: var(--ink-2); }
-textarea, input[type=text], select {
+textarea, input[type=text], input[type=email], input[type=password], select {
   width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px;
   background: var(--bg); resize: vertical;
 }

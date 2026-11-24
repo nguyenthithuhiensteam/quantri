@@ -29,7 +29,17 @@ Mỗi cuốn có 16 chương, tổng cộng 64 chương. Mỗi chương gồm:
 - **Nhật ký**: ghi chép theo kiểu Cornell (từ khóa, ghi chép, tóm tắt).
 - **Tiến độ**: lịch 35 ngày gần nhất và tiến độ theo từng cuốn. Có nút sao lưu và khôi phục dữ liệu (tệp JSON).
 
-Dữ liệu cá nhân chỉ lưu trên trình duyệt của máy bạn (localStorage), không gửi đi đâu cả.
+- **Tài khoản & đồng bộ** (tùy chọn): đăng nhập bằng email/mật khẩu hoặc Google, tiến độ tự đồng bộ giữa các thiết bị qua Firebase. Có nút đăng xuất và xóa tài khoản.
+
+Khi chưa cấu hình Firebase, app chạy ở chế độ lưu trên trình duyệt (localStorage).
+
+## Bật tài khoản & đồng bộ (Firebase, gói Spark miễn phí)
+
+1. Tạo dự án tại https://console.firebase.google.com.
+2. **Authentication → Sign-in method**: bật *Email/Password* (và *Google* nếu muốn).
+3. **Authentication → Settings → Authorized domains**: thêm `nguyenthithuhiensteam.github.io`.
+4. **Firestore Database → Create database** (chế độ production), rồi vào tab **Rules**, dán nội dung tệp `firestore.rules` và bấm **Publish**.
+5. **Project settings → Your apps → Web (</>)**: đăng ký app, sao chép đối tượng `firebaseConfig` vào tệp `firebase-config.js`.
 
 ## Cách mở
 
@@ -40,6 +50,7 @@ Dữ liệu cá nhân chỉ lưu trên trình duyệt của máy bạn (localSto
 
 ```
 index.html, styles.css, app.js
+sync.js, firebase-config.js, firestore.rules              – tài khoản & đồng bộ
 data/lanh-dao.js, dung-ngon.js, xu-the.js, quan-tri.js   – nội dung 64 chương
 data/simon.js                                            – nguyên tắc học Simon
 ```

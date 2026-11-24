@@ -23,19 +23,47 @@
   const cardId = (chId, i) => chId + "#" + i;
 
   // ---------- Lưu trữ ----------
-  const blank = () => ({ done: {}, feyn: {}, cards: {}, scen: {}, journal: [], days: {}, chal: {}, pomo: {}, startedAt: today() });
+  // Khách (chưa đăng nhập) lưu ở KEY; mỗi tài khoản có bản lưu riêng trên máy: KEY + ":" + uid.
+  const blank = () => ({ done: {}, feyn: {}, cards: {}, scen: {}, journal: [], days: {}, chal: {}, pomo: {}, startedAt: today(), _ts: 0 });
+  let storeKey = KEY;
   let S = load();
-  function load() {
+  function load(key) {
     try {
-      const raw = localStorage.getItem(KEY);
+      const raw = localStorage.getItem(key || storeKey);
       if (raw) return Object.assign(blank(), JSON.parse(raw));
     } catch (e) { /* bỏ qua */ }
     return blank();
   }
-  function save() {
-    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast("Không lưu được dữ liệu trên trình duyệt này."); }
-    updateChrome();
+  function writeLocal() {
+    try { localStorage.setItem(storeKey, JSON.stringify(S)); } catch (e) { toast("Không lưu được dữ liệu trên trình duyệt này."); }
   }
+  function save() {
+    S._ts = Date.now();
+    writeLocal();
+    updateChrome();
+    if (window.Sync) window.Sync.onLocalChange();
+  }
+  const editing = () => { const a = document.activeElement; return a && /^(TEXTAREA|INPUT|SELECT)$/.test(a.tagName); };
+
+  // Giao diện cho sync.js (đồng bộ tài khoản).
+  window.App = {
+    KEY,
+    blank,
+    getState: () => S,
+    readLocal: (key) => load(key),
+    // Chuyển sang bản lưu của tài khoản (hoặc khách) và hiển thị lại.
+    useStorage(key) { storeKey = key; S = load(); rerender(); },
+    // Thay dữ liệu bằng bản từ máy chủ, không đẩy ngược lên.
+    replaceState(next, opts) {
+      S = Object.assign(blank(), next); writeLocal(); updateChrome();
+      if (!(opts && opts.quiet) && !editing()) rerender();
+    },
+    clearLocal(key) { try { localStorage.removeItem(key); } catch (e) { /* bỏ qua */ } },
+    toast: (m) => toast(m),
+    rerender: () => rerender(),
+    esc: (s) => esc(s)
+  };
+  function rerender() { if (typeof route === "function") route(true); }
 
   // ---------- Tiện ích ----------
   function today(d) {
@@ -104,25 +132,26 @@
     [/^\/scen\/([\w-]+)$/, viewScenario, "scen"],
     [/^\/journal$/, viewJournal, "journal"],
     [/^\/progress$/, viewProgress, "today"],
-    [/^\/method$/, viewMethod, "today"]
+    [/^\/method$/, viewMethod, "today"],
+    [/^\/account$/, viewAccount, "today"]
   ];
-  function route() {
+  function route(keepScroll) {
     const path = decodeURIComponent(location.hash.replace(/^#/, "").split("?")[0]) || "/";
     for (const [re, fn, tab] of routes) {
       const m = path.match(re);
       if (m) {
         document.querySelectorAll(".tabbar a").forEach((a) => a.classList.toggle("active", a.dataset.tab === tab));
-        stopTimerIfLeaving(fn);
+        const y = window.scrollY;
         fn(...m.slice(1));
-        window.scrollTo(0, 0);
-        $app.focus({ preventScroll: true });
+        if (keepScroll === true) window.scrollTo(0, y);
+        else { window.scrollTo(0, 0); $app.focus({ preventScroll: true }); }
         updateChrome();
         return;
       }
     }
     location.hash = "#/";
   }
-  window.addEventListener("hashchange", route);
+  window.addEventListener("hashchange", () => route());
 
   // ---------- Hôm nay ----------
   function viewToday() {
@@ -235,7 +264,6 @@
     const el = document.getElementById("timer");
     if (el) el.textContent = fmtTime(POMO.left);
   }
-  function stopTimerIfLeaving() { /* đồng hồ vẫn chạy nền khi chuyển trang */ }
   function beep() {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -627,6 +655,14 @@
       <p class="muted small">Gợi ý lộ trình: mỗi ngày một chương, học hết một cuốn trong 16 ngày, cả bộ trong khoảng 2 tháng.</p>`;
   }
 
+  // ---------- Tài khoản ----------
+  function viewAccount() {
+    $app.innerHTML = `<a class="back" href="#/">‹ Hôm nay</a><h1>Tài khoản</h1><div id="account-box"></div>`;
+    const box = document.getElementById("account-box");
+    if (window.Sync) window.Sync.renderAccount(box);
+    else box.innerHTML = `<div class="card"><p>Tính năng tài khoản chưa tải được. Hãy kiểm tra kết nối mạng rồi tải lại trang.</p></div>`;
+  }
+
   // ---------- Sao lưu ----------
   function backupCard() {
     return `
@@ -658,7 +694,7 @@
           const data = JSON.parse(r.result);
           if (typeof data !== "object" || !data.done) throw new Error("bad");
           if (!confirm("Khôi phục sẽ thay thế toàn bộ dữ liệu hiện tại. Tiếp tục?")) return;
-          S = Object.assign(blank(), data); save(); toast("Đã khôi phục dữ liệu."); route();
+          S = Object.assign(blank(), data); save(); toast("Đã khôi phục dữ liệu."); route(true);
         } catch (e) { toast("Tệp sao lưu không hợp lệ."); }
       };
       r.readAsText(f);
